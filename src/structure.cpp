@@ -134,6 +134,218 @@ Arbre* get_structure(string input){
 	return arbre;
 }
 
+/**
+ * Add element to equation (end)
+ * equation : Equation to modfie
+ * arg1/2 : Arguments of equation
+ */
+Equation* addToEquation(Equation *equation, Arbre *arg1, Arbre *arg2){
+	Equation *temp = new Equation;
+	temp->args[0] = arg1;
+	temp->args[1] = arg2;
+	temp->next = NULL;
+
+	if(equation != NULL) {
+		Equation *loop = equation;
+		while(loop->next != NULL) {
+			loop = loop->next;
+		}
+
+		loop->next = temp;
+	} else {
+		equation = temp;
+	}
+
+	return equation;
+}
+
+/**
+ * Add element to arguments
+ * argument : Arguments to modifie
+ * arbre : arbre to add
+ * index : Index to place
+ */
+Arguments* addToArguments(Arguments *arguments, Arbre *arbre, int index){
+	if(arguments == NULL){
+		arguments = new Arguments;
+		arguments->next = NULL;
+		arguments->value = NULL;
+	}
+
+	Arguments *temp = new Arguments;
+	temp->value = arbre;
+	temp->next = NULL;
+
+	if(index > 1) {
+		Arguments *result = getArgumentsAtIndex(arguments, index - 1);
+		if(result->next != NULL && result->next->next != NULL)
+			temp->next = result->next->next;
+
+		result->next = temp;
+	} else {
+		temp->next = arguments->next;
+		arguments = temp;
+	}
+
+	return arguments;
+}
+
+/**
+ * Return the arguments at index
+ */
+Arguments* getArgumentsAtIndex(Arguments *arguments, int index){
+	Arguments *loop = arguments;
+
+	int i = 1;
+	if(index > 1) {
+		while(i++ < index){
+			if(loop->next == NULL){
+				Arguments* next = new Arguments;
+				next->next = NULL;
+				next->value = NULL;
+				loop->next = next;
+			}
+
+			loop = loop->next;
+		}
+	}
+
+	return loop;
+}
+
+/**
+ * Resolve the equation
+ */
 Arguments* resolve(Equation *equation){
-	return NULL;
+	Equation *temp = equation;
+	Arguments *args = NULL;
+
+	while(temp != NULL) {
+		// If S a variable{1}
+		if(temp->args[0]->typ_terme == 1) {
+			// If S and T a variables {1}
+			if(temp->args[1]->typ_terme == 1) {
+				// If S and T the same variable
+				if(temp->args[0]->value == temp->args[1]->value) {
+					// Nothing...
+
+				// If S and T not the same variable
+				} else {
+					// If S < T
+					if(temp->args[0]->value < temp->args[1]->value) {
+						// If variable already defined
+						Arguments *result = getArgumentsAtIndex(args, temp->args[0]->value);
+						if(result->value != NULL)
+							args = addToArguments(args, temp->args[0], temp->args[1]->value);
+						else
+							args = addToArguments(args, temp->args[1], temp->args[0]->value);
+
+					// If S > T
+					} else {
+						temp = addToEquation(temp, temp->args[1], temp->args[0]);
+					}
+				}
+			// If T is a constante {2}
+			} else if(temp->args[1]->typ_terme == 2) {
+				args = addToArguments(args, temp->args[1], temp->args[0]->value);
+
+			// If T is a function {30+}
+			} else if(temp->args[1]->typ_terme >= 30) {
+				if(isArgumentOf(temp->args[0], temp->args[1]))
+					return NULL;
+
+				args = addToArguments(args, temp->args[1], temp->args[0]->value);
+			}
+
+
+		// If S is not a variable /{1} but T is a variable {1}
+		} else if(temp->args[0]->typ_terme != 1 && temp->args[1]->typ_terme == 1) {
+			temp = addToEquation(temp, temp->args[1], temp->args[0]);
+
+		// If T and S not a variables
+		} else {
+			// If T and S are constante
+			if(temp->args[0]->typ_terme == 2 && temp->args[1]->typ_terme == 2
+				 && temp->args[0]->value == temp->args[1]->value){
+					// Nothing...
+
+			// If T and S are the same function
+			} else if(temp->args[0]->typ_terme >= 30 
+				 && temp->args[0]->typ_terme == temp->args[1]->typ_terme){
+
+				Arguments* f1 = temp->args[0]->args;
+				Arguments* f2 = temp->args[1]->args;
+			    while(f1 != NULL){
+			    	if(f2 == NULL)
+			    		return NULL;
+
+			        temp = addToEquation(temp, f1->value, f2->value);
+			        f1 = f1->next;
+			        f2 = f2->next;
+			    }
+
+			// Else, no solution
+			} else {
+				return NULL;
+			}
+		}
+
+		temp = temp->next;
+	}
+
+	return args;
+}
+
+/**
+ * Simplify equation (need recursive)
+ */
+Arguments* simplify(Arguments *arguments){
+	Arguments *temp = arguments;
+	Arguments *result;
+	Arguments *args;
+
+	while(temp != NULL){
+		if(temp->value != NULL){
+			if(temp->value->typ_terme == 1){
+				result = getArgumentsAtIndex(arguments, temp->value->value);
+				if(result->value != NULL)
+					temp->value = result->value;
+			} else if(temp->value->typ_terme > 30){
+				args = temp->value->args;
+				while(args != NULL){
+					if(args->value != NULL && args->value->typ_terme == 1){
+						result = getArgumentsAtIndex(arguments, args->value->value);
+						if(result->value != NULL)
+							args->value = result->value;
+					}
+					args = args->next;
+				} 
+			}
+		}
+
+		temp = temp->next;
+	}
+
+	return arguments;
+}
+
+/**
+ * Return if a variable is an arguments of a function
+ * variable : Arbre{1} to search
+ * function : Arbre{30+} to explore
+ */
+bool isArgumentOf(Arbre *variable, Arbre *function){
+	if(function->typ_terme < 30)
+		return false;
+
+    Arguments* args = function->args;
+    while(args != NULL){
+        if(args->value->typ_terme == 1 && variable->value == args->value->value)
+        	return true;
+        else if(args->value->typ_terme >= 30 && isArgumentOf(variable, args->value))
+        	return true;
+        args = args->next;
+    }
+
+    return false;
 }

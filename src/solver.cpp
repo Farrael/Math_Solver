@@ -22,17 +22,17 @@ int main() {
 
     cout << endl;
 
-    Equation *head = NULL;
-    Equation *tail = NULL;
+    Equation *head;
+    Equation *tail;
 
     // Explore the system
     vector<string> systems = regex(input, hook, 1);
 	for(size_t i = 0; i < systems.size(); ++i) {
         cout << "+- System : " << systems[i] << endl;
-        if(i < (systems.size()-1))
-            indent += "|  ";
-        else
-            indent += "   ";
+        indent += "   ";
+
+        // Reset if old value
+        head = tail = NULL;
 
         vector<string> equations = regex(systems[i], hook, 1);
         for(size_t j = 0; j < equations.size(); ++j) {
@@ -78,31 +78,53 @@ int main() {
         }
         cout << indent << endl;
         indent.erase(indent.end() - 3, indent.end());
-    }
 
-    // Display to human format
-    cout << "System in literal form : " << endl << "   ";
-    printEquation(head);
-    cout << endl << endl;
 
-    // Resolve the system
-    Arguments *result = resolve(head);
+        ///////////////////
+        // Solve
+        /////
 
-    if(result == NULL)
-        cout << "The system has no solution /!\\" << endl;
-    else {
-        int i = 1;
-        cout << "{";
-        while(result != NULL) {
-            if(result->value != NULL){
-                cout << "x" << i++ << "=";
-                printArbre(result->value);
+        cout << "Equation : +- ";
+        printEquation(head);
+        cout << endl;
+
+        // Resolve the system
+        Arguments *result = resolve(head);
+
+        cout << "Solution : +- ";
+        if(result == NULL)
+            cout << "The system has no solution /!\\" << endl;
+        else {
+            int i = 1;
+            Arguments *temp = result;
+            cout << "{";
+            while(temp != NULL) {
+                if(temp->value != NULL){
+                    cout << "x" << i++ << "=";
+                    printArbre(temp->value);
+                }
+                temp = temp->next;
+                if(temp != NULL)
+                    cout << "; ";
             }
-            result = result->next;
-            if(result != NULL)
-                cout << "; ";
+            cout << "}" << endl;
+
+            // Simplifie the result
+            temp = simplify(result);
+            i = 1;
+
+            cout << "           +- " << "{";
+            while(temp != NULL) {
+                if(temp->value != NULL){
+                    cout << "x" << i++ << "=";
+                    printArbre(temp->value);
+                }
+                temp = temp->next;
+                if(temp != NULL)
+                    cout << "; ";
+            }
+            cout << "}" << endl << endl;
         }
-        cout << "}";
     }
 
     return 0;

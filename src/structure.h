@@ -40,6 +40,14 @@ Role : Global structures used to solve system
     void printEquation(Equation*);
 
     Arbre* get_structure(std::string);
+
+	Equation* addToEquation(Equation*, Arbre*, Arbre*);
+
+	Arguments* addToArguments(Arguments*, Arbre*, int);
+	Arguments* getArgumentsAtIndex(Arguments*, int);
 	Arguments* resolve(Equation*);
+	Arguments* simplify(Arguments*);
+
+	bool isArgumentOf(Arbre*, Arbre*);
 
 #endif
