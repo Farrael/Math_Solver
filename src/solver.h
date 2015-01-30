@@ -9,7 +9,6 @@ Role : Main application file
 #define H_SOLVER
 
     void logo();
-    void explore(Arbre*, int, std::string, bool);
-    void toString(Arbre*);
+    void error(std::string, int);
 
 #endif

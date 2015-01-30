@@ -22,6 +22,9 @@ int main() {
 
     cout << endl;
 
+    Equation *head = NULL;
+    Equation *tail = NULL;
+
     // Explore the system
     vector<string> systems = regex(input, hook, 1);
 	for(size_t i = 0; i < systems.size(); ++i) {
@@ -33,6 +36,9 @@ int main() {
 
         vector<string> equations = regex(systems[i], hook, 1);
         for(size_t j = 0; j < equations.size(); ++j) {
+            Equation *equation = new Equation;
+            equation->next = NULL;
+            
             cout << indent << "+- Equation : " << equations[j] << endl;
             if(j < (equations.size()-1))
                 indent += "|  ";
@@ -40,9 +46,32 @@ int main() {
                 indent += "   ";
 
             vector<string> arbres = cut(equations[j], bracket, ',', 0);
-            for(size_t k = 0; k < arbres.size(); ++k) {
+            if(arbres.size() != 2) {
+                if(arbres.size() < 2)
+                    error(" ^ Missing arguments (Two expected)", indent.size());
+                else
+                    error(" ^ Too many arguments (Two expected)", indent.size());
+                return 0;
+            }
+
+            bool valid = true;
+            for(size_t k = 0; k < 2; ++k) {
                 Arbre *arbre = get_structure(arbres[k]);
+                equation->args[k] = arbre;
+                if(arbre->typ_terme == 0)
+                    valid = false;
                 explore(arbre, 0, indent, k < (arbres.size()-1));
+            }
+
+            // Ignore if not a valid equation (f > 3 for exemple)
+            if(valid) {
+                if(tail != NULL)
+                    tail->next = equation;
+
+                tail = equation;
+
+                if(head == NULL)
+                    head = equation;
             }
 
             indent.erase(indent.end() - 3, indent.end());
@@ -51,63 +80,40 @@ int main() {
         indent.erase(indent.end() - 3, indent.end());
     }
 
+    // Display to human format
+    cout << "System in literal form : " << endl << "   ";
+    printEquation(head);
+    cout << endl << endl;
+
+    // Resolve the system
+    Arguments *result = resolve(head);
+
+    if(result == NULL)
+        cout << "The system has no solution /!\\" << endl;
+    else {
+        int i = 1;
+        cout << "{";
+        while(result != NULL) {
+            if(result->value != NULL){
+                cout << "x" << i++ << "=";
+                printArbre(result->value);
+            }
+            result = result->next;
+            if(result != NULL)
+                cout << "; ";
+        }
+        cout << "}";
+    }
+
     return 0;
 }
 
 /**
- * Explore and display Arbre
- * arbre : Arbre to explore
- * depth : Indentation
+ * Display error message
  */
-void explore(Arbre* arbre, int depth, string indent, bool next){
-    cout << indent << "+- Arbre : ";
-    toString(arbre);
-    cout << endl;
-
-    if(next)
-        indent += "|  ";
-    else
-        indent += "   ";
-
-    if(arbre->typ_terme != 0){
-        if(arbre->typ_terme == 1)
-            cout << indent << "+- Type : Variable" << endl;
-        else if(arbre->typ_terme == 2)
-            cout << indent << "+- Type : Constante" << endl;
-        else if(arbre->typ_terme >= 30) {
-            cout << indent << "+- Type : Fonction" << endl;
-            Arguments* args = arbre->args;
-            if(args->next != NULL)
-                    indent += "   ";
-            while(args != NULL){
-                explore(args->value, depth + 1, indent, args->next != NULL);
-                args = args->next;
-            }
-        }
-    } else 
-        cout << indent << "+- Type : Invalide" << endl;
-}
-
-/**
- * Display the string representation of Arbre
- * arbre : Arbre to display
- */
-void toString(Arbre* arbre) {
-    if(arbre->typ_terme == 1)
-        cout << "x" << arbre->value;
-    else if(arbre->typ_terme == 2)
-        cout << arbre->value;
-    else if(arbre->typ_terme >= 30) {
-        cout << "f" << arbre->typ_terme - 30 << '(';
-        Arguments* args = arbre->args;
-        while(args != NULL){
-            toString(args->value);
-            args = args->next;
-            if(args != NULL)
-                cout << ", ";
-        }
-        cout << ")";
-    }
+void error(string message, int space) {
+    string spacer(space, ' ');
+    cout << spacer << message << endl;
 }
 
 /**

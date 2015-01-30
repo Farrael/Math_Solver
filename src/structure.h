@@ -23,8 +23,7 @@ Role : Global structures used to solve system
 	 * Equation structure
 	 */
 	struct Equation {
-		Arbre *arg1;
-		Arbre *arg2;
+		Arbre *args[2];
 		Equation *next;
 	};
 
@@ -36,6 +35,11 @@ Role : Global structures used to solve system
 		Arguments *next;
 	};
 
-	Arbre* get_structure(std::string);
+	void explore(Arbre*, int, std::string, bool);
+    void printArbre(Arbre*);
+    void printEquation(Equation*);
+
+    Arbre* get_structure(std::string);
+	Arguments* resolve(Equation*);
 
 #endif
