@@ -8,35 +8,54 @@
 
 using namespace std;
 
-Variable* to_variable(string input){
-	if(input[0] != 'x')
-		return NULL;
+Arbre* get_structure(string input){
+	Arbre* arbre = new Arbre;
+	int id = 0;
 
-	vector<string> splitted = split(input, ",");
-	if(splitted.size() != 2)
-		return NULL;
+	if(input[0] == 'x') {
+		toInteger(input.erase(0,1), id);
+		arbre->typ_terme = 1;
+		arbre->value = id;
+	} else if(input[0] == 'f') {
+		toInteger(input.erase(0,1), id);
+		if(id < 0 || id > 3){
+			arbre->typ_terme = 0;
+			return arbre;
+		}
 
-	Variable *result = new Variable;
-	result->name = splitted[0];
-	//result->value = splitted[1];
+		Arguments* head = NULL;
+		Arguments* tail = NULL;
+		arbre->typ_terme = 30 + id;
 
-	return result;
-}
+		// Get arguments by recursion
+		// Return typ {0} invalidate the entire recursion
+		vector<string> arguments = cut(input, bracket, ',', 1);
+        for(size_t i = 0; i < arguments.size(); ++i) {
+        	Arbre *recu = get_structure(arguments[i]);
+        	if(recu->typ_terme == 0){
+        		arbre->typ_terme = 0;
+				return arbre;
+        	}
 
-Function* to_function(string input){
-	if(input[0] != 'f')
-		return NULL;
+        	Arguments* temp = new Arguments;
+        	temp->value = recu;
+        	temp->next = NULL;
 
-	vector<string> reg = regex(input, hook, 1);
-	if(reg.empty())
-		return NULL;
+        	if(tail != NULL)
+        		tail->next = temp;
 
-	return new Function;
+        	tail = temp;
+        	if(head == NULL)
+        		head = tail;
+        }
 
-/*	Function *result = new Function;
-	result->name = splitted[0];
-	result->arg1 = splitted[1];
-	result->arg1 = splitted[2];*/
+        arbre->args = head;
+	} else if(toInteger(input, id)) {
+		arbre->typ_terme = 2;
+		arbre->value = id;
+	} else {
+		arbre->typ_terme = 0;
+	}
 
-	//return result;
+	return arbre;
 }

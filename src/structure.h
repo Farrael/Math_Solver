@@ -8,49 +8,34 @@ Role : Global structures used to solve system
 #ifndef H_VARIABLES
 #define H_VARIABLES
 
+	struct Arguments;
+
+	/**
+	 * Equation structure
+	 */
+	struct Arbre {
+		int typ_terme;
+		int value;
+		Arguments *args;
+	};
+
 	/**
 	 * Equation structure
 	 */
 	struct Equation {
-		struct left;
-		struct right;
+		Arbre *arg1;
+		Arbre *arg2;
+		Equation *next;
 	};
 
 	/**
-	 * Global structure
+	 * Arguments structure
 	 */
-	struct Global {
-		int type;
-		struct value;
+	struct Arguments {
+		Arbre *value;
+		Arguments *next;
 	};
 
-	/**
-	 * Constante structure (0)
-	 */
-	struct Constante { 
-		int value;
-	};
-
-	/**
-	 * Variable structure (1)
-	 */
-	struct Variable {
-		std::string name;
-		struct value;
-	};
-
-    /**
-     * Function structure (2)
-     */
-    struct Function {
-		std::string name;
-		std::string arg1;
-		std::string arg2;
-		struct value;
-	};
-
-	Constante* to_constante(std::string);
-    Variable* to_variable(std::string);
-	Function* to_function(std::string);
+	Arbre* get_structure(std::string);
 
 #endif
