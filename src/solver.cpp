@@ -5,29 +5,38 @@
 /* Internal dependencies */
 #include "solver.h"
 #include "utils.h"
+#include "structure.h"
 
 using namespace std;
 
 int main() {
     string input = "";
-    char pattern[2] = {'[',']'};
 
     // Display logo
     logo();
 
     // Ask for equation
-    printf("\nEquation a resoudre : ");
+    printf("\nEnter a system to solve : ");
     getline(cin, input);
 
-    // Split usage ( exemple )
-    vector<string> try1 = split(input, "=");
-	for(size_t i = 0; i < try1.size(); ++i)
-        cout << try1[i] << endl;
-
     // Regex usage ( exemple )
-    vector<string> try2 = regex(input, pattern, 1);
-	for(size_t i = 0; i < try2.size(); ++i)
-        cout << try2[i] << endl;
+    vector<string> systems = regex(input, hook, 1);
+    cout << endl << "Number of system found : " << systems.size() << endl << endl;
+	for(size_t i = 0; i < systems.size(); ++i) {
+        cout << "System : " << systems[i] << endl;
+
+        vector<string> equations = regex(systems[i], hook, 1);
+        for(size_t j = 0; j < equations.size(); ++j) {
+            cout << "   Equation : " << equations[j] << endl;
+
+            vector<string> arbres = cut(equations[j], bracket, ',');
+            for(size_t k = 0; k < arbres.size(); ++k) {
+                cout << "      Arbre : " << arbres[k] << endl;
+            }
+        }
+
+        cout << endl;
+    }
 
     return 0;
 }
