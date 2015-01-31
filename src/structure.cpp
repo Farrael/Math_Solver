@@ -303,20 +303,25 @@ Arguments* simplify(Arguments *arguments){
 	Arguments *temp = arguments;
 	Arguments *result;
 	Arguments *args;
+	bool update = false;
 
 	while(temp != NULL){
 		if(temp->value != NULL){
 			if(temp->value->typ_terme == 1){
 				result = getArgumentsAtIndex(arguments, temp->value->value);
-				if(result->value != NULL)
+				if(result->value != NULL){
 					temp->value = result->value;
+					update = true;
+				}
 			} else if(temp->value->typ_terme > 30){
 				args = temp->value->args;
 				while(args != NULL){
 					if(args->value != NULL && args->value->typ_terme == 1){
 						result = getArgumentsAtIndex(arguments, args->value->value);
-						if(result->value != NULL)
+						if(result->value != NULL){
 							args->value = result->value;
+							update = true;
+						}
 					}
 					args = args->next;
 				} 
@@ -326,7 +331,7 @@ Arguments* simplify(Arguments *arguments){
 		temp = temp->next;
 	}
 
-	return arguments;
+	return update ? simplify(arguments) : arguments;
 }
 
 /**
