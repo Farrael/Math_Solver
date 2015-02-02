@@ -82,6 +82,10 @@ void printEquation(Equation* equation) {
     cout << "}";
 }
 
+/**
+ * Return an Arbre according to a string
+ * input : String to read
+ */
 Arbre* get_structure(string input){
 	Arbre* arbre = new Arbre;
 	int id = 0;
@@ -102,7 +106,7 @@ Arbre* get_structure(string input){
 		arbre->typ_terme = 30 + id;
 
 		// Get arguments by recursion
-		// Return typ {0} invalidate the entire recursion
+		// Return type {0} invalidate the entire recursion
 		vector<string> arguments = cut(input, bracket, ',', 1);
         for(size_t i = 0; i < arguments.size(); ++i) {
         	Arbre *recu = get_structure(arguments[i]);

@@ -5,8 +5,8 @@
 
 using namespace std;
 
-	char hook[2] = {'[',']'};
-	char bracket[2] = {'(',')'};
+char hook[2] = {'[',']'};
+char bracket[2] = {'(',')'};
 
 //converts s into n. Returns if it was "successful"
 bool toInteger(string &str, int &n){
@@ -83,7 +83,7 @@ vector<string> regex(string text, char* pattern, int depth) {
  * depth : Depth to valide
  */
 vector<string> cut(string text, char* pattern, char delimiter, int depth) {
-	size_t i = 0, pos = 0, diff = 0;
+	size_t i = 0, pos = 0;
 	int dep = 0;
 
 	vector<string> result;
@@ -94,8 +94,7 @@ vector<string> cut(string text, char* pattern, char delimiter, int depth) {
 		  	pos = i + 1;
 		} else if((text[i] == pattern[1] && dep-- == depth)
 		   			|| (text[i] == delimiter && dep == depth)) {
-		  	diff = i - pos;
-		  	token = text.substr(pos, diff);
+		  	token = text.substr(pos, i - pos);
 		  	if(token != "")
 		  		result.push_back(trim(token));
 		  	text.erase(0, i + 1	);
