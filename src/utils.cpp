@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include <sstream>
+
+/* Internal dependencies */
+#include "utils.h"
 
 using namespace std;
 
@@ -30,19 +32,18 @@ string trim(string& str) {
  * text : String to split
  * delimiter : split delimiter
  */
-vector<string> split(string text, string delimiter) {
-	vector<string> result;
+Array* split(string text, string delimiter) {
+	Array *result = NULL;
 	size_t position = 0;
 	string token;
 	while ((position = text.find(delimiter)) != string::npos) {
 	    token = text.substr(0, position);
 	    if(token != "")
-	    	result.push_back(trim(token));
+	    	result = push_back(result, trim(token));
 	    text.erase(0, position + delimiter.length());
 	}
 
-	result.push_back(text);
-	return result;
+	return push_back(result, text);
 }
 
 /**
@@ -51,11 +52,11 @@ vector<string> split(string text, string delimiter) {
  * pattern : 2d array of characters
  * depth : depth recursion
  */
-vector<string> regex(string text, char* pattern, int depth) {
+Array* regex(string text, char* pattern, int depth) {
 	size_t i = 0, pos = 0, diff = 0;
 	int dep = 0;
 
-	vector<string> result;
+	Array *result = NULL;
 	string token;
 
 	while (i < text.size()) {
@@ -65,7 +66,7 @@ vector<string> regex(string text, char* pattern, int depth) {
 	    	diff = i - pos;
 	    	token = text.substr(pos+1, diff - 1);
 	    	if(token != "")
-	    		result.push_back(trim(token));
+	    		result = push_back(result, trim(token));
 	    	text.erase(pos, diff + 1);
 	    	i = pos - 1;
 	    }
@@ -82,11 +83,11 @@ vector<string> regex(string text, char* pattern, int depth) {
  * delimiter : Cut delimiter
  * depth : Depth to valide
  */
-vector<string> cut(string text, char* pattern, char delimiter, int depth) {
+Array* cut(string text, char* pattern, char delimiter, int depth) {
 	size_t i = 0, pos = 0;
 	int dep = 0;
 
-	vector<string> result;
+	Array *result = NULL;
 	string token;
 
 	while (i < text.size()) {
@@ -96,7 +97,7 @@ vector<string> cut(string text, char* pattern, char delimiter, int depth) {
 		   			|| (text[i] == delimiter && dep == depth)) {
 		  	token = text.substr(pos, i - pos);
 		  	if(token != "")
-		  		result.push_back(trim(token));
+		  		result = push_back(result, trim(token));
 		  	text.erase(0, i + 1	);
 		  	i = pos = 0;
 		}
@@ -104,7 +105,45 @@ vector<string> cut(string text, char* pattern, char delimiter, int depth) {
 	}
 
 	if(text != "" && depth == 0)
-	    result.push_back(trim(text));
+	    result = push_back(result, trim(text));
 
 	return result;
+}
+
+/**
+ * Add element at the end of the list
+ * list : List to modify
+ * value : Element to add
+ */
+Array* push_back(Array *list, string value){	
+	if(list != NULL){
+		Array* temp = list;
+		while(temp->next != NULL){
+			temp = temp->next;
+		}
+
+		temp->next = new Array;
+		temp->next->value = value;
+		temp->next->next = NULL;
+	} else {
+		list = new Array;
+		list->value = value;
+		list->next = NULL;
+	}
+
+	return list;
+}
+
+/**
+ * Return the size of a list
+ * list : List to get size
+ */
+int size(Array *list){
+	int i = 0;
+	while(list != NULL){
+		i++;
+		list = list->next;
+	}
+
+	return i;
 }

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -107,9 +106,9 @@ Arbre* get_structure(string input){
 
 		// Get arguments by recursion
 		// Return type {0} invalidate the entire recursion
-		vector<string> arguments = cut(input, bracket, ',', 1);
-        for(size_t i = 0; i < arguments.size(); ++i) {
-        	Arbre *recu = get_structure(arguments[i]);
+		Array* arguments = cut(input, bracket, ',', 1);
+        while(arguments != NULL){
+        	Arbre *recu = get_structure(arguments->value);
         	if(recu->typ_terme == 0){
         		arbre->typ_terme = 0;
 				return arbre;
@@ -125,6 +124,8 @@ Arbre* get_structure(string input){
         	tail = temp;
         	if(head == NULL)
         		head = tail;
+
+        	arguments = arguments->next;
         }
 
         arbre->args = head;

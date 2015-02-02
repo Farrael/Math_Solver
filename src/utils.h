@@ -11,11 +11,22 @@ Role : Utility function
 	extern char hook[2];
 	extern char bracket[2];
 
+	/**
+	 * List of String
+	 */
+	struct Array {
+		std::string value;
+		Array* next;
+	};
+
 	bool toInteger(std::string &s, int &n);
 	bool isInteger(std::string&);
     std::string trim(std::string&);
-    std::vector<std::string> split(std::string, std::string);
-    std::vector<std::string> regex(std::string, char*, int);
-    std::vector<std::string> cut(std::string, char*, char, int);
+    Array* split(std::string, std::string);
+    Array* regex(std::string, char*, int);
+    Array* cut(std::string, char*, char, int);
+
+	Array* push_back(Array*, std::string);
+    int size(Array*);
 
 #endif

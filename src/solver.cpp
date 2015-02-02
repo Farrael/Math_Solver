@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -11,7 +10,7 @@ using namespace std;
 
 int main() {
     string input = "";
-    string indent = "";
+    string indent = "   ";
 
     // Display logo
     logo();
@@ -26,28 +25,29 @@ int main() {
     Equation *tail;
 
     // Explore the system
-    vector<string> systems = regex(input, hook, 1);
-	for(size_t i = 0; i < systems.size(); ++i) {
-        cout << "+- System : " << systems[i] << endl;
+    Array *systems = regex(input, hook, 1);
+	while(systems != NULL) {
+        cout << indent << "+- System : " << systems->value << endl;
         indent += "   ";
 
         // Reset if old value
         head = tail = NULL;
 
-        vector<string> equations = regex(systems[i], hook, 1);
-        for(size_t j = 0; j < equations.size(); ++j) {
+        Array *equations = regex(systems->value, hook, 1);
+        while(equations != NULL) {
             Equation *equation = new Equation;
             equation->next = NULL;
             
-            cout << indent << "+- Equation : " << equations[j] << endl;
-            if(j < (equations.size()-1))
+            cout << indent << "+- Equation : " << equations->value << endl;
+            if(equations->next != NULL)
                 indent += "|  ";
             else
                 indent += "   ";
 
-            vector<string> arbres = cut(equations[j], bracket, ',', 0);
-            if(arbres.size() != 2) {
-                if(arbres.size() < 2)
+            Array *arbres = cut(equations->value, bracket, ',', 0);
+            int i = size(arbres);
+            if(i != 2) {
+                if(i < 2)
                     error(" ^ Missing arguments (Two expected)", indent.size());
                 else
                     error(" ^ Too many arguments (Two expected)", indent.size());
@@ -55,12 +55,14 @@ int main() {
             }
 
             bool valid = true;
-            for(size_t k = 0; k < 2; ++k) {
-                Arbre *arbre = get_structure(arbres[k]);
-                equation->args[k] = arbre;
+            int j = 0;
+            while(arbres != NULL) {
+                Arbre *arbre = get_structure(arbres->value);
+                equation->args[j++] = arbre;
                 if(arbre->typ_terme == 0)
                     valid = false;
-                explore(arbre, 0, indent, k < (arbres.size()-1));
+                explore(arbre, 0, indent, arbres->next != NULL);
+                arbres = arbres->next;
             }
 
             // Ignore if not a valid equation (f > 3 for exemple)
@@ -75,6 +77,7 @@ int main() {
             }
 
             indent.erase(indent.end() - 3, indent.end());
+            equations = equations->next;
         }
         cout << indent << endl;
         indent.erase(indent.end() - 3, indent.end());
@@ -125,6 +128,8 @@ int main() {
             }
             cout << "}" << endl << endl;
         }
+
+        systems = systems->next;
     }
 
     return 0;
