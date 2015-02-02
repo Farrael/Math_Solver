@@ -35,11 +35,11 @@ Role : Global structures used to solve system
 		Arguments *next;
 	};
 
-	void explore(Arbre*, int, std::string, bool);
+	void explore(Arbre*, int, char*, bool);
     void printArbre(Arbre*);
     void printEquation(Equation*);
 
-    Arbre* get_structure(std::string);
+    Arbre* get_structure(char*);
 
 	Equation* addToEquation(Equation*, Arbre*, Arbre*);
 

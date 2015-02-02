@@ -1,57 +1,83 @@
 #include <iostream>
-#include <string>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* Internal dependencies */
 #include "structure.h"
 #include "solver.h"
 #include "utils.h"
 
+#define SIZE 100
+
 using namespace std;
 
 int main() {
-    string input = "";
-    string indent = "   ";
+    char input[SIZE] = "";
+    char* indent = (char*) malloc(sizeof(char) * 4);
 
     // Display logo
     logo();
 
     // Ask for equation
     cout << "\nEnter a system to solve : ";
-    getline(cin, input);
+    fgets(input, SIZE, stdin);
 
-    cout << endl;
+    // Remove new line of stop if empty
+    if(input != NULL){
+        size_t len = strlen(input);
+        if (len > 0 && input[len-1] == '\n')
+            input[--len] = '\0';
+    } else {
+        cout << "Empty systems..." << endl;
+        return 0;
+    }
+
+    ///////////////////
+    // Explore
+    /////
 
     Equation *head;
     Equation *tail;
 
-    // Explore the system
-    Array *systems = regex(input, hook, 1);
+    Array *systems = cut(input, hook, ',', 0);
+    if(systems == NULL){
+        cout << input << endl;
+        cout << " ^ No systems detected..." << endl;
+        return 0;
+    }
+
 	while(systems != NULL) {
-        cout << indent << "+- System : " << systems->value << endl;
-        indent += "   ";
+        strcpy(indent, "    ");
+        cout << endl << indent << "+- System : " << systems->value << endl;
+        systems->value = substr(systems->value, 1, strlen(systems->value) - 2);
 
         // Reset if old value
         head = tail = NULL;
+        bool br = false;
 
-        Array *equations = regex(systems->value, hook, 1);
-        while(equations != NULL) {
-            Equation *equation = new Equation;
-            equation->next = NULL;
-            
+        Array *equations = cut(systems->value, hook, ',', 0);
+        while(equations != NULL) {            
             cout << indent << "+- Equation : " << equations->value << endl;
             if(equations->next != NULL)
-                indent += "|  ";
+                indent = addChar(indent, "|  ");
             else
-                indent += "   ";
+                indent = addChar(indent, "   ");
+
+            equations->value = substr(equations->value, 1, strlen(equations->value) - 2);
+            Equation *equation = new Equation;
+            equation->next = NULL;
 
             Array *arbres = cut(equations->value, bracket, ',', 0);
             int i = size(arbres);
             if(i != 2) {
                 if(i < 2)
-                    error(" ^ Missing arguments (Two expected)", indent.size());
+                    error(" ^ Missing arguments (Two expected)", strlen(indent));
                 else
-                    error(" ^ Too many arguments (Two expected)", indent.size());
-                return 0;
+                    error(" ^ Too many arguments (Two expected)", strlen(indent));
+                
+                br = true;
+                break;
             }
 
             bool valid = true;
@@ -76,11 +102,17 @@ int main() {
                     head = equation;
             }
 
-            indent.erase(indent.end() - 3, indent.end());
+            indent = substr(indent, 0, strlen(indent) - 3);
             equations = equations->next;
         }
+
+        if(br){
+            systems = systems->next;
+            continue;
+        }
+
         cout << indent << endl;
-        indent.erase(indent.end() - 3, indent.end());
+        indent = substr(indent, 0, strlen(indent) - 3);
 
 
         ///////////////////
@@ -138,8 +170,10 @@ int main() {
 /**
  * Display error message
  */
-void error(string message, int space) {
-    string spacer(space, ' ');
+void error(const char* message, int space) {
+    char spacer[space];
+    for(int i = 0; i < space; i++)
+        spacer[i] = ' ';
     cout << spacer << message << endl;
 }
 

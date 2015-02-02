@@ -15,18 +15,21 @@ Role : Utility function
 	 * List of String
 	 */
 	struct Array {
-		std::string value;
+		char* value;
 		Array* next;
 	};
 
-	bool toInteger(std::string &s, int &n);
-	bool isInteger(std::string&);
-    std::string trim(std::string&);
-    Array* split(std::string, std::string);
-    Array* regex(std::string, char*, int);
-    Array* cut(std::string, char*, char, int);
+	void toInteger(char*, int&);
+	int pow(int);
 
-	Array* push_back(Array*, std::string);
+	char* addChar(char*, const char*);
+	char* substr(char*, int, int);
+
+    void trim(char*);
+    Array* regex(char*, char*, int);
+    Array* cut(char*, char*, char, int);
+
+	Array* push_back(Array*, char*);
     int size(Array*);
 
 #endif

@@ -9,6 +9,6 @@ Role : Main application file
 #define H_SOLVER
 
     void logo();
-    void error(std::string, int);
+    void error(const char*, int);
 
 #endif

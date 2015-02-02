@@ -1,6 +1,6 @@
 #include <iostream>
-#include <string>
-#include <sstream>
+#include <string.h>
+#include <stdlib.h>
 
 /* Internal dependencies */
 #include "utils.h"
@@ -10,40 +10,84 @@ using namespace std;
 char hook[2] = {'[',']'};
 char bracket[2] = {'(',')'};
 
-//converts s into n. Returns if it was "successful"
-bool toInteger(string &str, int &n){
-  istringstream ss(str);
-  ss >> n;
-  return ss.eof(); //all characters read 
+/**
+ * Converts array of char into n. 
+ * Returns if it was "successful"
+ */
+void toInteger(char* str, int& n){
+	unsigned int size = strlen(str);
+	n = 0;
+	bool first = true;
+
+	for(unsigned int i = 0; i < size; i++){
+		if(!isdigit(str[i]))
+			first = false;
+
+		if(first && str[i] >= '0' && (char)str[i] <= '9')
+			n += (str[i] - 48) * pow(size - i - 1);
+		else
+			n /= 10;
+	}
+}
+
+/**
+ * Mathematical function : pow
+ */
+int pow(int a) {
+    int mult = 1;
+    for(int b = 0; b < a; b++)
+        mult *= 10;
+
+    return mult;
 }
 
 /**
  * Remove unexpected space
  * str : String to trim
  */
-string trim(string& str) {
-	str.erase(0, str.find_first_not_of(' '));
-	str.erase(str.find_last_not_of(' ') + 1);
-	return str;
+void trim(char* str) {
+    int start = 0;
+    char* buffer = str;
+    while(*str && *str++ == ' ')
+    	++start;
+
+    while(*str++);
+    int end = str - buffer - 1; 
+
+    while (end > 0 && buffer[end - 1] == ' ') 
+    	--end;
+
+    buffer[end] = 0;
+    if (end <= start || start == 0)
+    	return;
+
+    str = buffer + start;
+    while ((*buffer++ = *str++));
 }
 
 /**
- * Split string with delimiter
- * text : String to split
- * delimiter : split delimiter
+ * Add characters to char[]
+ * source : Char[] source
+ * add : Characters to add
  */
-Array* split(string text, string delimiter) {
-	Array *result = NULL;
-	size_t position = 0;
-	string token;
-	while ((position = text.find(delimiter)) != string::npos) {
-	    token = text.substr(0, position);
-	    if(token != "")
-	    	result = push_back(result, trim(token));
-	    text.erase(0, position + delimiter.length());
-	}
+char* addChar(char* source, const char* add){
+	char* result = (char*) malloc(strlen(source) + strlen(add) + 1);
+	strcpy(result, source);
+	strcat(result, add);
+	return result;
+}
 
-	return push_back(result, text);
+/**
+ * Remove characters from char[]
+ * text : Array of char to split
+ * position : Split position
+ * size : Size of split
+ */
+char* substr(char* text, int position, int size){
+	char* token = (char*) malloc(size+1);
+	strncpy(token, text + position, size);
+	token[size] = '\0';
+	return token;
 }
 
 /**
@@ -52,25 +96,21 @@ Array* split(string text, string delimiter) {
  * pattern : 2d array of characters
  * depth : depth recursion
  */
-Array* regex(string text, char* pattern, int depth) {
-	size_t i = 0, pos = 0, diff = 0;
-	int dep = 0;
+Array* regex(char* text, char* pattern, int depth) {
+	int dep = 0, pos = 0;
+	depth++; // Initial depth to 1
 
 	Array *result = NULL;
-	string token;
-
-	while (i < text.size()) {
+	for(unsigned int i = 0; i < strlen(text); i++) {
 	    if(text[i] == pattern[0] && ++dep == depth){
 	    	pos = i;
 	    } else if(text[i] == pattern[1] && dep-- == depth) {
-	    	diff = i - pos;
-	    	token = text.substr(pos+1, diff - 1);
-	    	if(token != "")
-	    		result = push_back(result, trim(token));
-	    	text.erase(pos, diff + 1);
-	    	i = pos - 1;
+	    	char* token = substr(text, pos+1, i - pos - 1);
+	    	if(token != '\0'){
+	    		trim(token);
+	    		result = push_back(result, token);
+	    	}
 	    }
-	    i++;
 	}
 
 	return result;
@@ -81,31 +121,41 @@ Array* regex(string text, char* pattern, int depth) {
  * text : String to cut
  * pattern : Pattern to validate
  * delimiter : Cut delimiter
- * depth : Depth to valide
+ * depth : Depth to validate
  */
-Array* cut(string text, char* pattern, char delimiter, int depth) {
-	size_t i = 0, pos = 0;
-	int dep = 0;
-
+Array* cut(char* text, char* pattern, char delimiter, int depth) {
+	bool valid = true;
 	Array *result = NULL;
-	string token;
+	int dep = 0, pos = 0;
 
-	while (i < text.size()) {
+	for(unsigned int i = 0; i <= strlen(text); i++) {
+		if(text[i] == pattern[0] && dep == depth && !valid)
+			return NULL;
+
 		if(text[i] == pattern[0] && ++dep == depth){
-		  	pos = i + 1;
-		} else if((text[i] == pattern[1] && dep-- == depth)
-		   			|| (text[i] == delimiter && dep == depth)) {
-		  	token = text.substr(pos, i - pos);
-		  	if(token != "")
-		  		result = push_back(result, trim(token));
-		  	text.erase(0, i + 1	);
-		  	i = pos = 0;
-		}
-		i++;
+	    	pos = i+1;
+	    } else if((text[i] == pattern[1] && dep-- == depth)
+	    			|| (text[i] == delimiter && dep == depth)) {
+
+	    	if(text[i] == delimiter)
+				valid = true;
+			if(text[i] == pattern[1])
+				valid = false;
+
+	    	char* token = substr(text, pos, i - pos);
+	    	trim(token);
+	    	if(token != '\0' && token[0] != 0)
+	    		result = push_back(result, token);
+
+	    	pos = i+1;
+	    }
 	}
 
-	if(text != "" && depth == 0)
-	    result = push_back(result, trim(text));
+	if(depth == 0){
+		char* token = substr(text, pos, strlen(text) - pos);
+		trim(token);
+		result = push_back(result, token);
+	}
 
 	return result;
 }
@@ -115,7 +165,7 @@ Array* cut(string text, char* pattern, char delimiter, int depth) {
  * list : List to modify
  * value : Element to add
  */
-Array* push_back(Array *list, string value){	
+Array* push_back(Array *list, char* value){	
 	if(list != NULL){
 		Array* temp = list;
 		while(temp->next != NULL){

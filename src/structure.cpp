@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>
+#include <string.h>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -12,15 +12,15 @@ using namespace std;
  * arbre : Arbre to explore
  * depth : Indentation
  */
-void explore(Arbre* arbre, int depth, string indent, bool next){
+void explore(Arbre* arbre, int depth, char* indent, bool next){
     cout << indent << "+- Arbre : ";
     printArbre(arbre);
     cout << endl;
 
     if(next)
-        indent += "|  ";
+        indent = addChar(indent, "|  ");
     else
-        indent += "   ";
+    	indent = addChar(indent, "   ");
 
     if(arbre->typ_terme != 0){
         if(arbre->typ_terme == 1)
@@ -31,7 +31,7 @@ void explore(Arbre* arbre, int depth, string indent, bool next){
             cout << indent << "+- Type : Fonction" << endl;
             Arguments* args = arbre->args;
             if(args->next != NULL)
-                    indent += "   ";
+                    indent = addChar(indent, "   ");
             while(args != NULL){
                 explore(args->value, depth + 1, indent, args->next != NULL);
                 args = args->next;
@@ -85,16 +85,16 @@ void printEquation(Equation* equation) {
  * Return an Arbre according to a string
  * input : String to read
  */
-Arbre* get_structure(string input){
+Arbre* get_structure(char* input){
 	Arbre* arbre = new Arbre;
 	int id = 0;
 
 	if(input[0] == 'x') {
-		toInteger(input.erase(0,1), id);
+		toInteger(substr(input, 1, strlen(input)), id);
 		arbre->typ_terme = 1;
 		arbre->value = id;
 	} else if(input[0] == 'f') {
-		toInteger(input.erase(0,1), id);
+		toInteger(substr(input, 1, strlen(input)), id);
 		if(id < 0 || id > 3){
 			arbre->typ_terme = 0;
 			return arbre;
@@ -129,11 +129,15 @@ Arbre* get_structure(string input){
         }
 
         arbre->args = head;
-	} else if(toInteger(input, id)) {
+	} else {
+		toInteger(input, id);
+
+		if(id == 0)
+			arbre->typ_terme = 0;
+		else {
 		arbre->typ_terme = 2;
 		arbre->value = id;
-	} else {
-		arbre->typ_terme = 0;
+		}
 	}
 
 	return arbre;
