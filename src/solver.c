@@ -20,7 +20,7 @@ int main() {
     logo();
 
     // Ask for equation
-    cout << "\nEnter a system to solve : ";
+    printf("\nEnter a system to solve : ");
     fgets(input, SIZE, stdin);
 
     // Remove new line of stop if empty
@@ -29,7 +29,7 @@ int main() {
         if (len > 0 && input[len-1] == '\n')
             input[--len] = '\0';
     } else {
-        cout << "Empty systems..." << endl;
+        printf("Empty systems...\n");
         return 0;
     }
 
@@ -42,30 +42,30 @@ int main() {
 
     Array *systems = cut(input, hook, ',', 0);
     if(systems == NULL){
-        cout << input << endl;
-        cout << " ^ No systems detected..." << endl;
+        printf("%s\n", input);
+        printf(" ^ No systems detected...\n");
         return 0;
     }
 
 	while(systems != NULL) {
         strcpy(indent, "    ");
-        cout << endl << indent << "+- System : " << systems->value << endl;
+        printf("\n%s+- System : %s\n", indent, systems->value);
         systems->value = substr(systems->value, 1, strlen(systems->value) - 2);
 
-        // Reset if old value
+        // Default value
         head = tail = NULL;
         bool br = false;
 
         Array *equations = cut(systems->value, hook, ',', 0);
-        while(equations != NULL) {            
-            cout << indent << "+- Equation : " << equations->value << endl;
+        while(equations != NULL) {
+            printf("%s+- Equation : %s\n", indent, equations->value);
             if(equations->next != NULL)
                 indent = addChar(indent, "|  ");
             else
                 indent = addChar(indent, "   ");
 
             equations->value = substr(equations->value, 1, strlen(equations->value) - 2);
-            Equation *equation = new Equation;
+            Equation *equation = (Equation*) malloc(sizeof(Equation));
             equation->next = NULL;
 
             Array *arbres = cut(equations->value, bracket, ',', 0);
@@ -111,61 +111,101 @@ int main() {
             continue;
         }
 
-        cout << indent << endl;
+        printf("%s\n", indent);
         indent = substr(indent, 0, strlen(indent) - 3);
-
 
         ///////////////////
         // Solve
         /////
 
-        cout << "Equation : +- ";
+        printf("Equation : +- ");
         printEquation(head);
-        cout << endl;
+        printf("\n");
 
         // Resolve the system
         Arguments *result = resolve(head);
 
-        cout << "Solution : +- ";
+        printf("Solution : +- ");
         if(result == NULL)
-            cout << "The system has no solution /!\\" << endl;
+            printf("The system has no solution /!\\\n");
         else {
             int i = 1;
             Arguments *temp = result;
-            cout << "{";
+            printf("{");
             while(temp != NULL) {
                 if(temp->value != NULL){
-                    cout << "x" << i++ << "=";
+                    printf("x%d=", i++);
                     printArbre(temp->value);
                 }
                 temp = temp->next;
                 if(temp != NULL)
-                    cout << "; ";
+                    printf("; ");
             }
-            cout << "}" << endl;
+            printf("}\n");
 
             // Simplifie the result
             temp = simplify(result);
             i = 1;
 
-            cout << "           +- " << "{";
+            printf("           +- {");
             while(temp != NULL) {
                 if(temp->value != NULL){
-                    cout << "x" << i++ << "=";
+                    printf("x%d=", i++);
                     printArbre(temp->value);
                 }
                 temp = temp->next;
                 if(temp != NULL)
-                    cout << "; ";
+                    printf("; ");
             }
-            cout << "}" << endl << endl;
+            printf("}\n\n");
         }
 
+        freeSystems(head);
         systems = systems->next;
     }
 
+    free(indent);
     return 0;
 }
+
+/**
+ * Free systems
+ */
+ void freeSystems(Equation* equation){
+    while(equation){
+        if(equation->args[0])
+            freeArbre(equation->args[0]);
+        if(equation->args[1])
+            freeArbre(equation->args[1]);
+
+        Equation* temp = equation->next;
+        free(equation);
+        equation = temp;
+    }
+ }
+
+/**
+ * Free Arbre
+ */
+ void freeArbre(Arbre* arbre){
+    if(arbre){
+        if(arbre->typ_terme < 30)
+            free(arbre);
+        else if(arbre->typ_terme < 34){
+            Arguments* args = arbre->args;
+            while(args != NULL){
+                if(args->value)
+                    freeArbre(args->value);
+                Arguments* temp = args->next;
+                free(args);
+                args = temp;
+
+            }
+
+            free(arbre);
+        }
+    }
+ }
 
 /**
  * Display error message
@@ -174,18 +214,18 @@ void error(const char* message, int space) {
     char spacer[space];
     for(int i = 0; i < space; i++)
         spacer[i] = ' ';
-    cout << spacer << message << endl;
+    printf("%s%s\n", spacer, message);
 }
 
 /**
  * Display main logo
  */
 void logo(){
-	cout << "#----------------------------------------------#      \n";
-	cout << "  __  __      _   _      ___      _                   \n";
-	cout << " |  \\/  |__ _| |_| |_   / __| ___| |_ _____ _ _      \n";
-	cout << " | |\\/| / _` |  _| ' \\  \\__ \\/ _ \\ \\ V / -_) '_|\n";
-	cout << " |_|  |_\\__,_|\\__|_||_|_|___/\\___/_|\\_/\\___|_|   \n";
-	cout << "                     |___|                            \n";
-	cout << "#----------------------------------------------#      \n";
+	printf("#----------------------------------------------#      \n");
+	printf("  __  __      _   _      ___      _                   \n");
+	printf(" |  \\/  |__ _| |_| |_   / __| ___| |_ _____ _ _      \n");
+	printf(" | |\\/| / _` |  _| ' \\  \\__ \\/ _ \\ \\ V / -_) '_|\n");
+	printf(" |_|  |_\\__,_|\\__|_||_|_|___/\\___/_|\\_/\\___|_|   \n");
+	printf("                     |___|                            \n");
+	printf("#----------------------------------------------#      \n");
 }

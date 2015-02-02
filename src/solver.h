@@ -10,5 +10,7 @@ Role : Main application file
 
     void logo();
     void error(const char*, int);
+    void freeSystems(Equation*);
+    void freeArbre(Arbre*);
 
 #endif

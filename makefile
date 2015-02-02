@@ -10,9 +10,9 @@ LDFLAGS = -enable-auto-import
 OBJDIR 	= obj
 SRCDIR 	= src
 
-SRCS 	= $(wildcard $(SRCDIR)/*.cpp)
+SRCS 	= $(wildcard $(SRCDIR)/*.c)
 #SRCS 	= $(shell find $(SRCDIR) -name '*.cpp')
-OBJS 	= $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))	
+OBJS 	= $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))	
 
 ###
 # Compiling sources
@@ -22,7 +22,7 @@ all: $(PROJECT)
 $(PROJECT): buildrepo $(OBJS)
 	$(COMP) $(OBJS) $(LDFLAGS) -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(COMP) $(CFLAGS) -c $< -o $@
 
 ###

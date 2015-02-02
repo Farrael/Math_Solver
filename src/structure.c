@@ -1,5 +1,7 @@
 #include <iostream>
+#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -13,9 +15,9 @@ using namespace std;
  * depth : Indentation
  */
 void explore(Arbre* arbre, int depth, char* indent, bool next){
-    cout << indent << "+- Arbre : ";
+    printf("%s+- Arbre : ", indent);
     printArbre(arbre);
-    cout << endl;
+    printf("\n");
 
     if(next)
         indent = addChar(indent, "|  ");
@@ -24,11 +26,11 @@ void explore(Arbre* arbre, int depth, char* indent, bool next){
 
     if(arbre->typ_terme != 0){
         if(arbre->typ_terme == 1)
-            cout << indent << "+- Type : Variable" << endl;
+        	printf("%s+- Type : Variable \n", indent);
         else if(arbre->typ_terme == 2)
-            cout << indent << "+- Type : Constante" << endl;
+        	printf("%s+- Type : Constante \n", indent);
         else if(arbre->typ_terme >= 30) {
-            cout << indent << "+- Type : Fonction" << endl;
+        	printf("%s+- Type : Fonction \n", indent);
             Arguments* args = arbre->args;
             if(args->next != NULL)
                     indent = addChar(indent, "   ");
@@ -38,7 +40,7 @@ void explore(Arbre* arbre, int depth, char* indent, bool next){
             }
         }
     } else 
-        cout << indent << "+- Type : Invalide (Ignored)" << endl;
+   		printf("%s+- +- Type : Invalide (Ignored) \n", indent);
 }
 
 /**
@@ -47,19 +49,19 @@ void explore(Arbre* arbre, int depth, char* indent, bool next){
  */
 void printArbre(Arbre* arbre) {
     if(arbre->typ_terme == 1)
-        cout << "x" << arbre->value;
+        printf("x%d", arbre->value);
     else if(arbre->typ_terme == 2)
-        cout << arbre->value;
+        printf("%d", arbre->value);
     else if(arbre->typ_terme >= 30) {
-        cout << "f" << arbre->typ_terme - 30 << '(';
+        printf("f%d(", arbre->typ_terme - 30);
         Arguments* args = arbre->args;
         while(args != NULL){
             printArbre(args->value);
             args = args->next;
             if(args != NULL)
-                cout << ", ";
+                printf(", ");
         }
-        cout << ")";
+        printf(")");
     }
 }
 
@@ -69,16 +71,16 @@ void printArbre(Arbre* arbre) {
  */
 void printEquation(Equation* equation) {
     Equation *temp = equation;
-    cout << "{";
+    printf("{");
     while(temp != NULL){
         printArbre(temp->args[0]);
-        cout << "=";
+        printf("=");
         printArbre(temp->args[1]);
         temp = temp->next;
         if(temp != NULL)
-            cout << "; ";
+            printf("; ");
     }
-    cout << "}";
+    printf("}");
 }
 
 /**
@@ -86,7 +88,7 @@ void printEquation(Equation* equation) {
  * input : String to read
  */
 Arbre* get_structure(char* input){
-	Arbre* arbre = new Arbre;
+	Arbre* arbre = (Arbre*) malloc(sizeof(Arbre));
 	int id = 0;
 
 	if(input[0] == 'x') {
@@ -114,7 +116,7 @@ Arbre* get_structure(char* input){
 				return arbre;
         	}
 
-        	Arguments* temp = new Arguments;
+        	Arguments* temp = (Arguments*) malloc(sizeof(Arguments));
         	temp->value = recu;
         	temp->next = NULL;
 
@@ -149,7 +151,7 @@ Arbre* get_structure(char* input){
  * arg1/2 : Arguments of equation
  */
 Equation* addToEquation(Equation *equation, Arbre *arg1, Arbre *arg2){
-	Equation *temp = new Equation;
+	Equation *temp = (Equation*) malloc(sizeof(Equation));
 	temp->args[0] = arg1;
 	temp->args[1] = arg2;
 	temp->next = NULL;
@@ -176,12 +178,12 @@ Equation* addToEquation(Equation *equation, Arbre *arg1, Arbre *arg2){
  */
 Arguments* addToArguments(Arguments *arguments, Arbre *arbre, int index){
 	if(arguments == NULL){
-		arguments = new Arguments;
+		arguments = (Arguments*) malloc(sizeof(Arguments));
 		arguments->next = NULL;
 		arguments->value = NULL;
 	}
 
-	Arguments *temp = new Arguments;
+	Arguments *temp = (Arguments*) malloc(sizeof(Arguments));
 	temp->value = arbre;
 	temp->next = NULL;
 
@@ -193,6 +195,7 @@ Arguments* addToArguments(Arguments *arguments, Arbre *arbre, int index){
 		result->next = temp;
 	} else {
 		temp->next = arguments->next;
+		free(arguments);
 		arguments = temp;
 	}
 
@@ -209,7 +212,7 @@ Arguments* getArgumentsAtIndex(Arguments *arguments, int index){
 	if(index > 1) {
 		while(i++ < index){
 			if(loop->next == NULL){
-				Arguments* next = new Arguments;
+				Arguments* next = (Arguments*) malloc(sizeof(Arguments));
 				next->next = NULL;
 				next->value = NULL;
 				loop->next = next;
