@@ -5,12 +5,13 @@ PROJECT = Solver
 
 COMP 	= g++
 CFLAGS 	= -c -Wall
-LDFLAGS = 
+LDFLAGS = -enable-auto-import
 
 OBJDIR 	= obj
 SRCDIR 	= src
 
-SRCS 	= $(shell find $(SRCDIR) -name '*.cpp')
+SRCS 	= $(wildcard $(SRCDIR)/*.cpp)
+#SRCS 	= $(shell find $(SRCDIR) -name '*.cpp')
 OBJS 	= $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))	
 
 ###
