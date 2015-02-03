@@ -24,12 +24,12 @@ int main() {
     fgets(input, SIZE, stdin);
 
     // Remove new line of stop if empty
-    if(input != NULL){
+    if(input[0] != '\n'){
         size_t len = strlen(input);
         if (len > 0 && input[len-1] == '\n')
             input[--len] = '\0';
     } else {
-        cout << "Empty systems..." << endl;
+        cout << "No system..." << endl;
         return 0;
     }
 
@@ -48,8 +48,8 @@ int main() {
     }
 
 	while(systems != NULL) {
+        cout << endl << "+- System : " << systems->value << endl;
         strcpy(indent, "    ");
-        cout << endl << indent << "+- System : " << systems->value << endl;
         systems->value = substr(systems->value, 1, strlen(systems->value) - 2);
 
         // Reset if old value
