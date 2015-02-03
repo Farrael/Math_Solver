@@ -5,7 +5,7 @@ PROJECT = Solver
 
 COMP 	= g++
 CFLAGS 	= -c -Wall
-LDFLAGS = -enable-auto-import
+LDFLAGS = 
 
 OBJDIR 	= obj
 SRCDIR 	= src
