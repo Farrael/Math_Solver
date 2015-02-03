@@ -23,10 +23,10 @@ void toInteger(char* str, int& n){
 		if(!isdigit(str[i]))
 			first = false;
 
-		if(first && str[i] >= '0' && (char)str[i] <= '9')
-			n += (str[i] - 48) * pow(size - i - 1);
-		else
-			n /= 10;
+		if(first && str[i] >= '0' && (char)str[i] <= '9'){
+			n *= 10;
+			n += (str[i] - '0');
+		}
 	}
 }
 

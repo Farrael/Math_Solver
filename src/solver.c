@@ -48,8 +48,8 @@ int main() {
     }
 
 	while(systems != NULL) {
+        printf("\n+- System : %s\n", systems->value);
         strcpy(indent, "    ");
-        printf("\n%s+- System : %s\n", indent, systems->value);
         systems->value = substr(systems->value, 1, strlen(systems->value) - 2);
 
         // Default value
@@ -127,7 +127,7 @@ int main() {
 
         printf("Solution : +- ");
         if(result == NULL)
-            printf("The system has no solution /!\\\n");
+            printf("The system has no solution.\n");
         else {
             int i = 1;
             Arguments *temp = result;
@@ -164,7 +164,9 @@ int main() {
         systems = systems->next;
     }
 
-    free(indent);
+    if(indent)
+        free(indent);
+
     return 0;
 }
 
