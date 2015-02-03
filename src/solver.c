@@ -24,12 +24,12 @@ int main() {
     fgets(input, SIZE, stdin);
 
     // Remove new line of stop if empty
-    if(input != NULL){
+    if(input[0] != '\n'){
         size_t len = strlen(input);
         if (len > 0 && input[len-1] == '\n')
             input[--len] = '\0';
     } else {
-        printf("Empty systems...\n");
+        printf("No systems...\n");
         return 0;
     }
 
