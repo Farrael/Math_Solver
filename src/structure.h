@@ -50,4 +50,7 @@ Role : Global structures used to solve system
 
 	bool isArgumentOf(Arbre*, Arbre*);
 
+	void freeSystems(Equation*);
+    void freeArbre(Arbre*);
+
 #endif
