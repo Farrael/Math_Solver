@@ -128,7 +128,7 @@ int main() {
 
         cout << "Solution : +- ";
         if(result == NULL)
-            cout << "The system has no solution /!\\" << endl;
+            cout << "The system has no solution." << endl;
         else {
             int i = 1;
             Arguments *temp = result;
@@ -161,8 +161,12 @@ int main() {
             cout << "}" << endl << endl;
         }
 
+        freeSystems(head);
         systems = systems->next;
     }
+
+    if(indent)
+        free(indent);
 
     return 0;
 }

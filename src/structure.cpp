@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <stdlib.h>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -193,6 +194,7 @@ Arguments* addToArguments(Arguments *arguments, Arbre *arbre, int index){
 		result->next = temp;
 	} else {
 		temp->next = arguments->next;
+		free(arguments);
 		arguments = temp;
 	}
 
@@ -363,3 +365,42 @@ bool isArgumentOf(Arbre *variable, Arbre *function){
 
     return false;
 }
+
+/**
+ * Free systems
+ */
+ void freeSystems(Equation* equation){
+    while(equation){
+        if(equation->args[0])
+            freeArbre(equation->args[0]);
+        if(equation->args[1])
+            freeArbre(equation->args[1]);
+
+        Equation* temp = equation->next;
+        free(equation);
+        equation = temp;
+    }
+ }
+
+/**
+ * Free Arbre
+ */
+ void freeArbre(Arbre* arbre){
+    if(arbre){
+        if(arbre->typ_terme < 30)
+            free(arbre);
+        else if(arbre->typ_terme < 34){
+            Arguments* args = arbre->args;
+            while(args != NULL){
+                if(args->value)
+                    freeArbre(args->value);
+                Arguments* temp = args->next;
+                free(args);
+                args = temp;
+
+            }
+
+            free(arbre);
+        }
+    }
+ }
