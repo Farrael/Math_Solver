@@ -12,16 +12,25 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
     char input[SIZE] = "";
     char* indent = (char*) malloc(sizeof(char) * 4);
 
     // Display logo
     logo();
 
-    // Ask for equation
-    printf("\nEnter a system to solve : ");
-    fgets(input, SIZE, stdin);
+    // Detect arguments
+    if(argc >= 2){
+        strcpy(input, argv[1]);
+        for(int i = 2; i < argc; i++){
+            strcpy(input, argv[1]);
+            strcat(input, argv[i]);
+        }
+    } else {
+        // Ask for equation
+        printf("\nEnter a system to solve : ");
+        fgets(input, SIZE, stdin);
+    }
 
     // Remove new line of stop if empty
     if(input[0] != '\n'){
@@ -160,7 +169,8 @@ int main() {
             printf("}\n\n");
         }
 
-        freeSystems(head);
+        if(head)
+            freeSystems(head);
         systems = systems->next;
     }
 
