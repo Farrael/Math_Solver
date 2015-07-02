@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sstream>
+#include <fstream>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -13,18 +15,21 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    char input[SIZE] = "";
+    char  input[SIZE] = "";
     char* indent = (char*) malloc(sizeof(char) * 4);
+    int   test   = 0;
 
     // Display logo
     logo();
 
     // Detect arguments
     if(argc >= 2){
-        strcpy(input, argv[1]);
-        for(int i = 2; i < argc; i++){
-            strcpy(input, argv[1]);
-            strcat(input, argv[i]);
+        for(int i = 1; i < argc; i++){
+            if(strcmp("-t", argv[i]) == 0) {
+                test = 1;
+            } else {
+                strcat(input, argv[i]);
+            }
         }
     } else {
         // Ask for equation
@@ -136,8 +141,9 @@ int main(int argc, char *argv[]) {
         Arguments *result = resolve(head);
 
         cout << "Solution : +- ";
+        std::ostringstream output;
         if(result == NULL)
-            cout << "The system has no solution." << endl;
+            output << "The system has no solution.";
         else {
             int i = 1;
             Arguments *temp = result;
@@ -145,7 +151,7 @@ int main(int argc, char *argv[]) {
             while(temp != NULL) {
                 if(temp->value != NULL){
                     cout << "x" << i++ << "=";
-                    printArbre(temp->value);
+                    cout << printArbre(temp->value);
                 }
                 temp = temp->next;
                 if(temp != NULL)
@@ -157,17 +163,27 @@ int main(int argc, char *argv[]) {
             temp = simplify(result);
             i = 1;
 
-            cout << "           +- " << "{";
+            output << "{";
             while(temp != NULL) {
                 if(temp->value != NULL){
-                    cout << "x" << i++ << "=";
-                    printArbre(temp->value);
+                    output << "x" << i++ << "=";
+                    output << printArbre(temp->value);
                 }
                 temp = temp->next;
                 if(temp != NULL)
-                    cout << "; ";
+                    output << "; ";
             }
-            cout << "}" << endl << endl;
+            output << "}";
+            cout << "           +- ";
+        }
+    
+        cout << output.str() << endl << endl;
+
+        if(test == 1) {
+            ofstream file;
+            file.open("result.txt");
+            file << output.str();
+            file.close();
         }
 
         freeSystems(head);

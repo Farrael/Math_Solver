@@ -36,8 +36,9 @@ Role : Global structures used to solve system
 	};
 
 	void explore(Arbre*, int, char*, bool);
-    void printArbre(Arbre*);
     void printEquation(Equation*);
+
+	std::string printArbre(Arbre*);
 
     Arbre* get_structure(char*);
 

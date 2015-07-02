@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include <sstream>
 
 /* Internal dependencies */
 #include "structure.h"
@@ -14,9 +15,7 @@ using namespace std;
  * depth : Indentation
  */
 void explore(Arbre* arbre, int depth, char* indent, bool next){
-    cout << indent << "+- Arbre : ";
-    printArbre(arbre);
-    cout << endl;
+    cout << indent << "+- Arbre : " << printArbre(arbre) << endl;
 
     if(next)
         indent = addChar(indent, "|  ");
@@ -46,22 +45,25 @@ void explore(Arbre* arbre, int depth, char* indent, bool next){
  * Display the string representation of the Arbre
  * arbre : Arbre to display
  */
-void printArbre(Arbre* arbre) {
+string printArbre(Arbre* arbre) {
+    std::ostringstream output;
     if(arbre->typ_terme == 1)
-        cout << "x" << arbre->value;
+        output << "x" << arbre->value;
     else if(arbre->typ_terme == 2)
-        cout << arbre->value;
+        output << arbre->value;
     else if(arbre->typ_terme >= 30) {
-        cout << "f" << arbre->typ_terme - 30 << '(';
+        output << "f" << arbre->typ_terme - 30 << '(';
         Arguments* args = arbre->args;
         while(args != NULL){
-            printArbre(args->value);
+            output << printArbre(args->value);
             args = args->next;
             if(args != NULL)
-                cout << ", ";
+                output << ", ";
         }
-        cout << ")";
+        output << ")";
     }
+
+    return output.str();
 }
 
 /**
@@ -72,9 +74,7 @@ void printEquation(Equation* equation) {
     Equation *temp = equation;
     cout << "{";
     while(temp != NULL){
-        printArbre(temp->args[0]);
-        cout << "=";
-        printArbre(temp->args[1]);
+        cout << printArbre(temp->args[0]) << "=" <<  printArbre(temp->args[1]);
         temp = temp->next;
         if(temp != NULL)
             cout << "; ";
