@@ -1,7 +1,7 @@
 ###
 # Manage variables for compilation
 ##
-PROJECT = Solver
+PROJECT = Solver.exe
 
 COMP 	= g++
 CFLAGS 	= -c -Wall
