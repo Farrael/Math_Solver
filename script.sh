@@ -3,9 +3,9 @@
 #######
 # Script config
 ###
-e="\e[1;31m" # Error color
-r="\e[m"     # Reset color
-
+e="\e[1;31m"  # Error color
+r="\e[m"      # Reset color
+d="data.temp" # Tempory file for data extraction
 
 #######
 # Define Input / Output
@@ -35,12 +35,34 @@ fi
 #######
 # Parse file
 ###
-# Init variables
-total=`grep -Po "^ Total asserts : (\s*)(\d*)" $input | sed 's/[^0-9][^0-9]*//'`
-failures=`grep -Po "^ Failed        : (\s*)(\d*)" $input | sed 's/[^0-9][^0-9]*//'`
+# Init parsing variables
+start="Start of FRUIT summary:"
+end="end of FRUIT summary"
+flag=false
+
+# Extract data
+cat $input | while read -r line ; do
+	# Start of text
+	if [[ $line == *$start* ]]; then
+		flag=true
+	fi
+
+	if [ $flag == true ]; then
+		echo -e "$line" >> $d
+	fi
+
+	# End of text
+	if [[ $line == *$end* ]]; then
+		flag=false
+	fi
+done
+
+# Init result variables
+total=`grep -Po "^Total asserts : (\s*)(\d*)" $d | sed 's/[^0-9][^0-9]*//'`
+failures=`grep -Po "^Failed        : (\s*)(\d*)" $d | sed 's/[^0-9][^0-9]*//'`
 
 # Loop through errors message
-grep -Po "\[_not_set_\]:(.*)" $input | sed 's/^[^%]* User message: \[//' | while read -r line ; do
+grep -Po "\[_not_set_\]:(.*)" $d | sed 's/^[^%]* User message: \[//' | while read -r line ; do
 	echo -e "  <testcase name=\"${line::-1}\" classname=\"FRUIT\">\n    <failure message=\"\" type=\"\"/>\n  </testcase>" >> tmp.txt
 done
 
@@ -49,6 +71,9 @@ if [ -f "tmp.txt" ]; then
 	content=`cat tmp.txt`
 	rm tmp.txt
 fi
+
+# Remove tempory file
+rm $d
 
 # Add unidentified tests
 for nb in `seq 1 $(($total-$failures))`; do
