@@ -41,7 +41,7 @@ failures=`grep -Po "^ Failed        : (\s*)(\d*)" $input | sed 's/[^0-9][^0-9]*/
 
 # Loop trough errors message
 grep -Po "\[_not_set_\]:(.*)" $input | sed 's/^[^%]* User message: \[//' | while read -r line ; do
-	echo -e "  <testcase>\n      <failure message=\"${line::-1}\"/>\n   </testcase>" >> tmp.txt
+	echo -e "  <testcase name=\"${line::-1}\" classname=\"FRUIT\">\n    <failure message=\"\" type=\"\"/>\n  </testcase>" >> tmp.txt
 done
 
 content=`cat tmp.txt`
@@ -51,6 +51,6 @@ rm tmp.txt
 # Write to output file
 ###
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > $output
-echo "<testsuite tests=\"$total\" failures=\"$failures\">" >> $output
+echo "<testsuite name=\"FRUIT tests\" tests=\"$total\" failures=\"$failures\">" >> $output
 echo -e "$content" >> $output
 echo "</testsuite>" >> $output
