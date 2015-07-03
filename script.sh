@@ -39,13 +39,19 @@ fi
 total=`grep -Po "^ Total asserts : (\s*)(\d*)" $input | sed 's/[^0-9][^0-9]*//'`
 failures=`grep -Po "^ Failed        : (\s*)(\d*)" $input | sed 's/[^0-9][^0-9]*//'`
 
-# Loop trough errors message
+# Loop through errors message
 grep -Po "\[_not_set_\]:(.*)" $input | sed 's/^[^%]* User message: \[//' | while read -r line ; do
 	echo -e "  <testcase name=\"${line::-1}\" classname=\"FRUIT\">\n    <failure message=\"\" type=\"\"/>\n  </testcase>" >> tmp.txt
 done
 
+# Load errors content
 content=`cat tmp.txt`
 rm tmp.txt
+
+# Add unidentified tests
+for nb in `seq 1 $(($total-$failures))`; do
+	content="$content\n  <testcase name=\"Test $nb\" classname=\"FRUIT\"></testcase>"
+done
 
 #######
 # Write to output file

@@ -17,7 +17,7 @@
 
  Total asserts :              5
  Successful    :              4
- Failed        :              1
+ Failed        :              2
 Successful rate:    80.00%
 
  Successful asserts / total asserts : [            4 /           5  ]
