@@ -4,22 +4,18 @@
 
     . : successful assert,   F : failed assert
 
-.F...
+.....
 
      Start of FRUIT summary:
 
- Some tests failed!
-
-   -- Failed assertion messages:
-   [_not_set_]:Expected Not [T], Got [T]; User message: [Boolean test fails]
-   [_not_set_]:Expected Not [T], Got [T]; User message: [Integer test fails]
-   -- end of failed assertion messages.
-
+ SUCCESSFUL
+ 
+  No messages
  Total asserts :              5
- Successful    :              4
- Failed        :              2
-Successful rate:    80.00%
+ Successful    :              5
+ Failed        :              0
+Successful rate:    100.00%
 
- Successful asserts / total asserts : [            4 /           5  ]
+ Successful asserts / total asserts : [            5 /           5  ]
  Successful cases   / total cases   : [            0 /           0  ]
    -- end of FRUIT summary

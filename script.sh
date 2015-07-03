@@ -45,8 +45,10 @@ grep -Po "\[_not_set_\]:(.*)" $input | sed 's/^[^%]* User message: \[//' | while
 done
 
 # Load errors content
-content=`cat tmp.txt`
-rm tmp.txt
+if [ -f "tmp.txt" ]; then
+	content=`cat tmp.txt`
+	rm tmp.txt
+fi
 
 # Add unidentified tests
 for nb in `seq 1 $(($total-$failures))`; do
